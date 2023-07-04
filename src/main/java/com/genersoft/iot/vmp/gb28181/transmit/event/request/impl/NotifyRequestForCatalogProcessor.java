@@ -11,6 +11,7 @@ import com.genersoft.iot.vmp.gb28181.event.subscribe.catalog.CatalogEvent;
 import com.genersoft.iot.vmp.gb28181.transmit.event.request.SIPRequestProcessorParent;
 import com.genersoft.iot.vmp.gb28181.utils.SipUtils;
 import com.genersoft.iot.vmp.gb28181.utils.XmlUtil;
+import com.genersoft.iot.vmp.jt1078.codec.netty.NettyServerHandler;
 import com.genersoft.iot.vmp.service.IDeviceChannelService;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import org.dom4j.DocumentException;
@@ -116,11 +117,13 @@ public class NotifyRequestForCatalogProcessor extends SIPRequestProcessorParent 
 						channel.setParentId(null);
 					}
 					channel.setDeviceId(device.getDeviceId());
+					DeviceChannel channel1=deviceChannelService.getOne(device.getDeviceId(), channel.getChannelId());
 					logger.info("[收到目录订阅]：{}/{}", device.getDeviceId(), channel.getChannelId());
 					switch (event) {
 						case CatalogEvent.ON:
 							// 上线
 							logger.info("[收到通道上线通知] 来自设备: {}, 通道 {}", device.getDeviceId(), channel.getChannelId());
+							NettyServerHandler.channelGroup.writeAndFlush("<uscvideo><mid>0</mid><cid>0</cid><eventType>STATUS_CHANNEL_ONLINE</eventType><id>"+channel1.getId()+"</id><gbid>"+channel1.getChannelId()+"</gbid></uscvideo>");
 							updateChannelOnlineList.add(channel);
 							if (updateChannelOnlineList.size() > 300) {
 								executeSaveForOnline();
@@ -134,6 +137,7 @@ public class NotifyRequestForCatalogProcessor extends SIPRequestProcessorParent 
 						case CatalogEvent.OFF :
 							// 离线
 							logger.info("[收到通道离线通知] 来自设备: {}, 通道 {}", device.getDeviceId(), channel.getChannelId());
+							NettyServerHandler.channelGroup.writeAndFlush("<uscvideo><mid>0</mid><cid>0</cid><eventType>STATUS_CHANNEL_OFFLINE</eventType><id>"+channel1.getId()+"</id><gbid>"+channel1.getChannelId()+"</gbid></uscvideo>");
 							if (userSetting.getRefuseChannelStatusChannelFormNotify()) {
 								logger.info("[收到通道离线通知] 但是平台已配置拒绝此消息，来自设备: {}, 通道 {}", device.getDeviceId(), channel.getChannelId());
 							}else {
