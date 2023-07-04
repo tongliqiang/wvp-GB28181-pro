@@ -15,6 +15,7 @@ import com.genersoft.iot.vmp.gb28181.transmit.event.request.SIPRequestProcessorP
 import com.genersoft.iot.vmp.gb28181.utils.NumericUtil;
 import com.genersoft.iot.vmp.gb28181.utils.SipUtils;
 import com.genersoft.iot.vmp.gb28181.utils.XmlUtil;
+import com.genersoft.iot.vmp.jt1078.codec.netty.NettyServerHandler;
 import com.genersoft.iot.vmp.service.IDeviceChannelService;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
@@ -255,6 +256,7 @@ public class NotifyRequestProcessor extends SIPRequestProcessorParent implements
 			jsonObject.put("direction", mobilePosition.getDirection());
 			jsonObject.put("speed", mobilePosition.getSpeed());
 			redisCatchStorage.sendMobilePositionMsg(jsonObject);
+			NettyServerHandler.channelGroup.writeAndFlush("<uscvideo><mid>0</mid><cid>0</cid><eventType>RESOURCE_GPSREPORT</eventType><id>"+deviceChannel.getChannelId()+"</id><gbid>"+deviceChannel.getChannelId()+"</gbid><longitude>"+deviceChannel.getLongitude()+"</longitude><latitude>"+deviceChannel.getLatitude()+"</latitude></uscvideo>");
 		} catch (DocumentException  e) {
 			logger.error("未处理的异常 ", e);
 		}
