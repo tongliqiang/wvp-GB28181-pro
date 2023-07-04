@@ -57,13 +57,17 @@ public class TcpServer {
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         public void initChannel(NioSocketChannel channel) {
+                            //                            channel.pipeline()
+//                                    .addLast(new IdleStateHandler(10, 0, 0, TimeUnit.MINUTES))
+//                                    .addLast(new DelimiterBasedFrameDecoder(1024 * 2, DECODER_JT808))
+//                                    .addLast(new Jt808Decoder())
+//                                    .addLast(new Jt808Encoder())
+//                                    .addLast(new Jt808EncoderCmd())
+//                                    .addLast(new Jt808Handler());
                             channel.pipeline()
-                                    .addLast(new IdleStateHandler(10, 0, 0, TimeUnit.MINUTES))
-                                    .addLast(new DelimiterBasedFrameDecoder(1024 * 2, DECODER_JT808))
-                                    .addLast(new Jt808Decoder())
-                                    .addLast(new Jt808Encoder())
-                                    .addLast(new Jt808EncoderCmd())
-                                    .addLast(new Jt808Handler());
+                                    .addLast("decoder", new StringDecoder(Charset.forName("UTF-8")))
+                                    .addLast("encoder", new StringEncoder(Charset.forName("UTF-8")))
+                                    .addLast(new NettyServerHandler());
                         }
                     });
             ChannelFuture channelFuture = bootstrap.bind(port).sync();
