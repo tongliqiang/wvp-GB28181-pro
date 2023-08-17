@@ -12,10 +12,10 @@ import java.util.Properties;
  */
 public class DefaultProperties {
 
-    public static Properties getProperties(String ip, boolean sipLog) {
+    public static Properties getProperties(String name, boolean sipLog) {
         Properties properties = new Properties();
-        properties.setProperty("javax.sip.STACK_NAME", "GB28181_SIP");
-        properties.setProperty("javax.sip.IP_ADDRESS", ip);
+        properties.setProperty("javax.sip.STACK_NAME", name);
+//        properties.setProperty("javax.sip.IP_ADDRESS", ip);
         // 关闭自动会话
         properties.setProperty("javax.sip.AUTOMATIC_DIALOG_SUPPORT", "off");
         /**
@@ -43,6 +43,8 @@ public class DefaultProperties {
         properties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
         // 定义应用程序打算多久审计一次 SIP 堆栈，了解其内部线程的健康状况（该属性指定连续审计之间的时间（以毫秒为单位））
         properties.setProperty("gov.nist.javax.sip.THREAD_AUDIT_INTERVAL_IN_MILLISECS", "30000");
+
+//        properties.setProperty("gov.nist.javax.sip.MESSAGE_PROCESSOR_FACTORY", "gov.nist.javax.sip.stack.NioMessageProcessorFactory");
 
         /**
          * sip_server_log.log 和 sip_debug_log.log ERROR, INFO, WARNING, OFF, DEBUG, TRACE

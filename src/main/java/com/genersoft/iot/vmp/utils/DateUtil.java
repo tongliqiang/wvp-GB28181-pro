@@ -1,12 +1,15 @@
 package com.genersoft.iot.vmp.utils;
 
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 
 import java.util.Locale;
@@ -53,6 +56,10 @@ public class DateUtil {
         return formatter.format(formatterCompatibleISO8601.parse(formatTime));
     }
 
+	public static String urlToyyyy_MM_dd_HH_mm_ss(String formatTime) {
+        return formatter.format(urlFormatter.parse(formatTime));
+    }
+
     /**
      * yyyy_MM_dd_HH_mm_ss 转时间戳
      * @param formatTime
@@ -82,6 +89,7 @@ public class DateUtil {
         return urlFormatter.format(nowDateTime);
     }
 
+
     /**
      * 格式校验
      * @param timeStr 时间字符串
@@ -100,5 +108,13 @@ public class DateUtil {
     public static String getNowForISO8601() {
         LocalDateTime nowDateTime = LocalDateTime.now();
         return formatterISO8601.format(nowDateTime);
+    }
+
+    public static long getDifferenceForNow(String keepaliveTime) {
+        if (ObjectUtils.isEmpty(keepaliveTime)) {
+            return 0;
+        }
+        Instant beforeInstant = Instant.from(formatter.parse(keepaliveTime));
+        return ChronoUnit.MILLIS.between(beforeInstant, Instant.now());
     }
 }

@@ -266,6 +266,7 @@ public class NotifyRequestForCatalogProcessor extends SIPRequestProcessorParent 
 	}
 
 	private void executeSave(){
+		executeSaveForAdd();
 		executeSaveForUpdate();
 		executeSaveForDelete();
 		executeSaveForOnline();

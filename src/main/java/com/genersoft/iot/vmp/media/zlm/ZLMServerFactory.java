@@ -42,7 +42,7 @@ public class ZLMServerFactory {
      * @param tcpMode 0/null udp 模式，1 tcp 被动模式, 2 tcp 主动模式。
      * @return
      */
-    public int createRTPServer(MediaServerItem mediaServerItem, String streamId, int ssrc, Integer port, Boolean reUsePort, Integer tcpMode) {
+    public int createRTPServer(MediaServerItem mediaServerItem, String streamId, long ssrc, Integer port, Boolean reUsePort, Integer tcpMode) {
         int result = -1;
         // 查询此rtp server 是否已经存在
         JSONObject rtpInfo = zlmresTfulUtils.getRtpInfo(mediaServerItem, streamId);
@@ -86,7 +86,10 @@ public class ZLMServerFactory {
         }else {
             param.put("port", port);
         }
-        param.put("ssrc", ssrc);
+        if (ssrc != 0) {
+            param.put("ssrc", ssrc);
+        }
+
         JSONObject openRtpServerResultJson = zlmresTfulUtils.openRtpServer(mediaServerItem, param);
         logger.info(JSONObject.toJSONString(openRtpServerResultJson));
         if (openRtpServerResultJson != null) {
@@ -161,13 +164,9 @@ public class ZLMServerFactory {
     public SendRtpItem createSendRtpItem(MediaServerItem serverItem, String ip, int port, String ssrc, String platformId,
                                          String deviceId, String channelId, boolean tcp, boolean rtcp){
 
-        // 默认为随机端口
-        int localPort = 0;
-        if (userSetting.getGbSendStreamStrict()) {
-            localPort = sendRtpPortManager.getNextPort(serverItem.getId());
-            if (localPort == 0) {
-                return null;
-            }
+        int localPort = sendRtpPortManager.getNextPort(serverItem);
+        if (localPort == 0) {
+            return null;
         }
         SendRtpItem sendRtpItem = new SendRtpItem();
         sendRtpItem.setIp(ip);
@@ -197,13 +196,10 @@ public class ZLMServerFactory {
      */
     public SendRtpItem createSendRtpItem(MediaServerItem serverItem, String ip, int port, String ssrc, String platformId,
                                          String app, String stream, String channelId, boolean tcp, boolean rtcp){
-        // 默认为随机端口
-        int localPort = 0;
-        if (userSetting.getGbSendStreamStrict()) {
-            localPort = sendRtpPortManager.getNextPort(serverItem.getId());
-            if (localPort == 0) {
-                return null;
-            }
+
+        int localPort = sendRtpPortManager.getNextPort(serverItem);
+        if (localPort == 0) {
+            return null;
         }
         SendRtpItem sendRtpItem = new SendRtpItem();
         sendRtpItem.setIp(ip);
@@ -226,6 +222,13 @@ public class ZLMServerFactory {
      */
     public JSONObject startSendRtpStream(MediaServerItem mediaServerItem, Map<String, Object>param) {
         return zlmresTfulUtils.startSendRtp(mediaServerItem, param);
+    }
+
+    /**
+     * 调用zlm RESTFUL API —— startSendRtpPassive
+     */
+    public JSONObject startSendRtpStreamForPassive(MediaServerItem mediaServerItem, Map<String, Object>param) {
+        return zlmresTfulUtils.startSendRtpPassive(mediaServerItem, param);
     }
 
     /**

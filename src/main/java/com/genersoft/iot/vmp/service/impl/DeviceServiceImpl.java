@@ -108,6 +108,7 @@ public class DeviceServiceImpl implements IDeviceService {
             inviteStreamService.clearInviteInfo(device.getDeviceId());
         }
         device.setUpdateTime(now);
+        device.setKeepaliveTime(now);
         if (device.getKeepaliveIntervalTime() == 0) {
             // 默认心跳间隔60
             device.setKeepaliveIntervalTime(60);
@@ -182,6 +183,17 @@ public class DeviceServiceImpl implements IDeviceService {
             // 发送redis消息
             redisCatchStorage.sendDeviceOrChannelStatus(device.getDeviceId(), null, true);
         }
+
+//
+//        try {
+//            cmder.alarmSubscribe(device, 600, "0", "4", "0", "2023-7-27T00:00:00", "2023-7-28T00:00:00");
+//        } catch (InvalidArgumentException e) {
+//            throw new RuntimeException(e);
+//        } catch (SipException e) {
+//            throw new RuntimeException(e);
+//        } catch (ParseException e) {
+//            throw new RuntimeException(e);
+//        }
 
     }
 
