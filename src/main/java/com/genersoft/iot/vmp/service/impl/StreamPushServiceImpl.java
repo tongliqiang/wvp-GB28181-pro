@@ -440,7 +440,7 @@ public class StreamPushServiceImpl implements IStreamPushService {
 
                 }
             }
-            if (streamPushItemListFroPlatform.size() > 0) {
+            if (!streamPushItemListFroPlatform.isEmpty()) {
                 platformGbStreamMapper.batchAdd(streamPushItemListFroPlatform);
                 // 发送通知
                 for (String platformId : platformForEvent.keySet()) {
@@ -506,6 +506,9 @@ public class StreamPushServiceImpl implements IStreamPushService {
         stream.setUpdateTime(DateUtil.getNow());
         stream.setCreateTime(DateUtil.getNow());
         stream.setServerId(userSetting.getServerId());
+        stream.setMediaServerId(mediaConfig.getId());
+        stream.setSelf(true);
+        stream.setPushIng(true);
 
         // 放在事务内执行
         boolean result = false;

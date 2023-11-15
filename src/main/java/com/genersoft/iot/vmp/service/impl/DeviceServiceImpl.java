@@ -511,18 +511,27 @@ public class DeviceServiceImpl implements IDeviceService {
         if (!ObjectUtils.isEmpty(device.getSdpIp())) {
             deviceInStore.setSdpIp(device.getSdpIp());
         }
+        if (!ObjectUtils.isEmpty(device.getPassword())) {
+            deviceInStore.setPassword(device.getPassword());
+        }
+        if (!ObjectUtils.isEmpty(device.getStreamMode())) {
+            deviceInStore.setStreamMode(device.getStreamMode());
+        }
+
 
         //  目录订阅相关的信息
-        if (device.getSubscribeCycleForCatalog() > 0) {
-            if (deviceInStore.getSubscribeCycleForCatalog() == 0 || deviceInStore.getSubscribeCycleForCatalog() != device.getSubscribeCycleForCatalog()) {
-                deviceInStore.setSubscribeCycleForCatalog(device.getSubscribeCycleForCatalog());
+        if (deviceInStore.getSubscribeCycleForCatalog() != device.getSubscribeCycleForCatalog()) {
+            if (device.getSubscribeCycleForCatalog() > 0) {
+                // 若已开启订阅，但订阅周期不同，则先取消
+                if (deviceInStore.getSubscribeCycleForCatalog() != 0) {
+                    removeCatalogSubscribe(deviceInStore);
+                }
                 // 开启订阅
-                addCatalogSubscribe(deviceInStore);
-            }
-        }else if (device.getSubscribeCycleForCatalog() == 0) {
-            if (deviceInStore.getSubscribeCycleForCatalog() != 0) {
                 deviceInStore.setSubscribeCycleForCatalog(device.getSubscribeCycleForCatalog());
+                addCatalogSubscribe(deviceInStore);
+            }else if (device.getSubscribeCycleForCatalog() == 0) {
                 // 取消订阅
+                deviceInStore.setSubscribeCycleForCatalog(device.getSubscribeCycleForCatalog());
                 removeCatalogSubscribe(deviceInStore);
             }
         }
@@ -537,6 +546,8 @@ public class DeviceServiceImpl implements IDeviceService {
             }
         }else if (device.getSubscribeCycleForMobilePosition() == 0) {
             if (deviceInStore.getSubscribeCycleForMobilePosition() != 0) {
+                deviceInStore.setMobilePositionSubmissionInterval(device.getMobilePositionSubmissionInterval());
+                deviceInStore.setSubscribeCycleForMobilePosition(device.getSubscribeCycleForMobilePosition());
                 // 取消订阅
                 removeMobilePositionSubscribe(deviceInStore);
             }
@@ -544,18 +555,23 @@ public class DeviceServiceImpl implements IDeviceService {
         if (deviceInStore.getGeoCoordSys() != null) {
             // 坐标系变化，需要重新计算GCJ02坐标和WGS84坐标
             if (!deviceInStore.getGeoCoordSys().equals(device.getGeoCoordSys())) {
-                updateDeviceChannelGeoCoordSys(device);
+                deviceInStore.setGeoCoordSys(device.getGeoCoordSys());
+                updateDeviceChannelGeoCoordSys(deviceInStore);
             }
         }else {
-            device.setGeoCoordSys("WGS84");
+            deviceInStore.setGeoCoordSys("WGS84");
         }
         if (device.getCharset() == null) {
-            device.setCharset("GB2312");
+            deviceInStore.setCharset("GB2312");
         }
-
+        //SSRC校验
+        deviceInStore.setSsrcCheck(device.isSsrcCheck());
+        //作为消息通道
+        deviceInStore.setAsMessageChannel(device.isAsMessageChannel());
+        
         // 更新redis
-        redisCatchStorage.updateDevice(device);
-        deviceMapper.updateCustom(device);
+        deviceMapper.updateCustom(deviceInStore);
+        redisCatchStorage.removeDevice(deviceInStore.getDeviceId());
     }
 
     @Override

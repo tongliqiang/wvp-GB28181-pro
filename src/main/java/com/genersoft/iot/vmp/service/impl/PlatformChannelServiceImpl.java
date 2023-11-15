@@ -82,7 +82,7 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
         int allCount = 0;
         boolean result = false;
         TransactionStatus transactionStatus = dataSourceTransactionManager.getTransaction(transactionDefinition);
-        int limitCount = 300;
+        int limitCount = 50;
         if (channelReducesToAdd.size() > 0) {
             if (channelReducesToAdd.size() > limitCount) {
                 for (int i = 0; i < channelReducesToAdd.size(); i += limitCount) {
@@ -162,7 +162,7 @@ public class PlatformChannelServiceImpl implements IPlatformChannelService {
             return 0;
         }
         if (ObjectUtils.isEmpty(catalogId)) {
-           catalogId = platform.getDeviceGBId();
+            catalogId = null;
         }
 
         if ((result = platformChannelMapper.delChannelForGBByCatalogId(platformId, catalogId)) > 0) {

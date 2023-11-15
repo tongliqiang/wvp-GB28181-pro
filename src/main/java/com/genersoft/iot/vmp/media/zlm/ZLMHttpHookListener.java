@@ -199,6 +199,13 @@ public class ZLMHttpHookListener {
         }
         // 推流鉴权的处理
         if (!"rtp".equals(param.getApp())) {
+            StreamProxyItem stream = streamProxyService.getStreamProxyByAppAndStream(param.getApp(), param.getStream());
+            if (stream != null) {
+                HookResultForOnPublish result = HookResultForOnPublish.SUCCESS();
+                result.setEnable_audio(stream.isEnableAudio());
+                result.setEnable_mp4(stream.isEnableMp4());
+                return result;
+            }
             if (userSetting.getPushAuthority()) {
                 // 推流鉴权
                 if (param.getParams() == null) {
@@ -609,7 +616,9 @@ public class ZLMHttpHookListener {
                 result.onTimeout(() -> {
                     logger.info("[ZLM HOOK] 预览流自动点播, 等待超时");
                     msg.setData(new HookResult(ErrorCode.ERROR100.getCode(), "点播超时"));
-                    resultHolder.invokeResult(msg);
+                    resultHolder.invokeAllResult(msg);
+                    inviteStreamService.removeInviteInfoByDeviceAndChannel(InviteSessionType.PLAY, deviceId, channelId);
+                    storager.stopPlay(deviceId, channelId);
                 });
 
                 resultHolder.put(key, uuid, result);
