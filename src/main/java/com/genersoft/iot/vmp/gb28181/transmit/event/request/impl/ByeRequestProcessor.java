@@ -31,6 +31,7 @@ import javax.sip.header.CallIdHeader;
 import javax.sip.message.Response;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -149,7 +150,7 @@ public class ByeRequestProcessor extends SIPRequestProcessorParent implements In
 		}else {
 
 			// 可能是设备发送的停止
-			SsrcTransaction ssrcTransaction = streamSession.getSsrcTransaction(null, null, callIdHeader.getCallId(), null);
+			SsrcTransaction ssrcTransaction = streamSession.getSsrcTransactionByCallId(callIdHeader.getCallId());
 			if (ssrcTransaction == null) {
 				return;
 			}
@@ -178,7 +179,7 @@ public class ByeRequestProcessor extends SIPRequestProcessorParent implements In
 			if (mediaServerItem != null) {
 				mediaServerService.releaseSsrc(mediaServerItem.getId(), ssrcTransaction.getSsrc());
 			}
-			streamSession.remove(device.getDeviceId(), channel.getChannelId(), ssrcTransaction.getStream());
+			streamSession.removeByCallId(device.getDeviceId(), channel.getChannelId(), ssrcTransaction.getCallId());
 		}
 	}
 }
